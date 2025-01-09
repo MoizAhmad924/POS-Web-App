@@ -1,0 +1,28 @@
+/* Basic Reset - Removes default browser styling */
+* {
+    margin: 0;          /* Remove default margin */
+    padding: 0;         /* Remove default padding */
+    box-sizing: border-box; /* Include padding and border in element's total width/height */
+}
+
+/* Body Styling */
+body {
+    font-family: Arial, sans-serif; /* Set default font */
+    line-height: 1.6;               /* Improve readability with line spacing */
+    padding: 20px;                  /* Add padding around the content */
+}
+
+/* Header Styling */
+header {
+    background: #333;               /* Dark background color */
+    color: #fff;                    /* White text color */
+    padding: 20px;                  /* Add padding inside header */
+    text-align: center;             /* Center align header content */
+}
+
+/* Main Content Area Styling */
+main {
+    margin-top: 20px;               /* Add space between header and main content */
+    padding: 20px;                  /* Add padding inside main content */
+    border: 1px solid #ddd;         /* Add subtle border around main content */
+}

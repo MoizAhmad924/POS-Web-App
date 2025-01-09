@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>Inventory Management System</title>
+    <script>
+        function toggleAddItemModal() {
+            const modal = document.getElementById('addItemModal');
+            modal.classList.toggle('hidden');
+        }
+
+        async function openEditItemModal(button) {
+            const item = JSON.parse(button.getAttribute('data-item'));
+            const modal = document.getElementById('editItemModal');
+            modal.classList.toggle('hidden');
+            document.getElementById('oldId').value = item.productId;
+            document.getElementById('newId').value = item.productId;
+            document.getElementById('newName').value = item.name;
+            document.getElementById('newStock').value = item.stock;
+            document.getElementById('newPrice').value = item.price; 
+        }
+
+        function closeEditItemModal() {
+            const modal = document.getElementById('editItemModal');
+            modal.classList.toggle('hidden');
+        }
+    </script>
+</head>
+<body class="flex bg-gray-100">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-800 text-white h-screen">
+        <div class="p-4">
+            <h2 class="text-2xl font-bold">Dashboard</h2>
+            <ul class="mt-6">
+                <li class="py-3 px-4 hover:bg-gray-700 rounded-md">
+                    <a href="/users/profile" class="flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+                        </svg>
+                        Profile
+                    </a>
+                </li>
+                <li class="py-3 px-4 hover:bg-gray-700 rounded-md"><a href="/pos">POS</a></li>
+                <li class="py-3 px-4 hover:bg-gray-700 rounded-md"><a href="/inventory">Inventory</a></li>
+                <li class="py-3 px-4 hover:bg-gray-700 rounded-md"><a href="/sales">Sales</a></li>
+                <li class="py-3 px-4 hover:bg-gray-700 rounded-md"><a href="/reports">Reports</a></li>
+                <li class="py-3 px-4 hover:bg-gray-700 rounded-md">
+                    <a href="/users/logout" class="flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-6">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Inventory Management</h1>
+            <div class="flex items-center">
+                <form action="/inventory/search" method="GET" class="flex items-center mr-2 relative">
+                    <input type="text" name="query" placeholder="Search..." class="border border-gray-400 rounded-md pl-4 pr-8 py-2" />
+                    <button type="submit">
+                        <svg class="w-5 h-5 absolute right-2 top-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+                </form>
+                <button onclick="toggleAddItemModal()" class="bg-blue-600 text-white px-4 py-2 rounded-md">Add Item</button>
+            </div>
+        </header>
+
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <table class="min-w-full table-auto">
+                <thead class="bg-gray-800 text-white">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-medium">ID</th>
+                        <th class="px-6 py-3 text-left text-sm font-medium">Item Name</th>
+                        <th class="px-6 py-3 text-left text-sm font-medium">Quantity</th>
+                        <th class="px-6 py-3 text-left text-sm font-medium">Price</th>
+                        <th class="px-6 py-3 text-center text-sm font-medium">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <% items.forEach(function(item) { %>
+                    <tr>
+                        <td class="px-6 py-4 text-sm text-gray-800"><%= item.productId %></td>
+                        <td class="px-6 py-4 text-sm text-gray-800"><%= item.name %></td>
+                        <td class="px-6 py-4 text-sm text-gray-800"><%= item.stock %></td>
+                        <td class="px-6 py-4 text-sm text-gray-800"><%= item.price %></td>
+                        <td class="px-6 py-4 text-center">
+                            <button data-item='<%= JSON.stringify(item) %>' onclick="openEditItemModal(this)" class="bg-yellow-500 text-white px-3 py-1 rounded-md">Edit</button>
+                            <a href="/inventory/delete/<%= item.productId %>" class="bg-red-500 text-white px-3 py-1 rounded-md ml-2">Delete</a>
+                        </td>
+                    </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex justify-between mt-4">
+            <button class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md">Previous</button>
+            <button class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md">Next</button>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div id="addItemModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-md w-96">
+            <h2 class="text-2xl font-bold mb-4">Add Item</h2>
+            <form action="/inventory/add" method="POST">
+                <div class="mb-4">
+                    <label for="name" class="block text-sm font-medium">Product Name</label>
+                    <input type="text" id="name" name="name" required class="mt-1 block w-full p-2 border rounded-md" />
+                </div>
+                <div class="mb-4">
+                    <label for="productId" class="block text-sm font-medium">Product ID</label>
+                    <input type="text" id="productId" name="productId" required class="mt-1 block w-full p-2 border rounded-md" />
+                </div>
+                <div class="mb-4">
+                    <label for="stock" class="block text-sm font-medium">Stock Quantity</label>
+                    <input type="number" id="stock" name="stock" required class="mt-1 block w-full p-2 border rounded-md" />
+                </div>
+                <div class="mb-4">
+                    <label for="price" class="block text-sm font-medium">Price</label>
+                    <input type="number" id="price" name="price" required class="mt-1 block w-full p-2 border rounded-md" />
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" onclick="toggleAddItemModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md mr-2">Cancel</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Item Modal -->
+    <div id="editItemModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-md w-96">
+            <h2 class="text-2xl font-bold mb-4">Edit Item</h2>
+            <form action="/inventory/edit" method="POST">
+                <input type="hidden" id="oldId" name="oldId" />
+                <div class="mb-4">
+                    <label for="newName" class="block text-sm font-medium">Product Name</label>
+                    <input type="text" id="newName" name="newName" required class="mt-1 block w-full p-2 border rounded-md" />
+                </div>
+                <div class="mb-4">
+                    <label for="newId" class="block text-sm font-medium">Product ID</label>
+                    <input type="text" id="newId" name="newId" required class="mt-1 block w-full p-2 border rounded-md" />
+                </div>
+                <div class="mb-4">
+                    <label for="newStock" class="block text-sm font-medium">Stock Quantity</label>
+                    <input type="number" id="newStock" name="newStock" required class="mt-1 block w-full p-2 border rounded-md" />
+                </div>
+                <div class="mb-4">
+                    <label for="newPrice" class="block text-sm font-medium">Price</label>
+                    <input type="number" id="newPrice" name="newPrice" required class="mt-1 block w-full p-2 border rounded-md" />
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" onclick="closeEditItemModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md mr-2">Cancel</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

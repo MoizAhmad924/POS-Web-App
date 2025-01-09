@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    function openCheckoutModal(button) {
+        const cartTotal = JSON.parse(button.getAttribute('cartTotalData'));
+        const cartItems = JSON.parse(button.getAttribute('cartData'));
+        console.log(typeof cartItems);
+        const modal = document.getElementById('checkoutModal');
+        modal.classList.toggle('hidden');
+        // Populate order details in the modal
+        const orderDetailsList = document.getElementById('order-details');
+        orderDetailsList.innerHTML = cartItems.map(item => `<li>${item.name} - Qty: ${item.quantity} - Price: Rs.${item.price * item.quantity}.00</li>`).join('');
+        document.getElementById('total-amount').innerText = cartTotal;
+    }
+    function closeCheckoutModal(button) {
+        const modal = document.getElementById('checkoutModal');
+        modal.classList.toggle('hidden');
+    }
+    </script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+    <aside class="w-64 bg-gray-800 text-white h-screen">
+        <div class="p-4">
+            <h2 class="text-2xl font-bold">Dashboard</h2>
+            <ul class="mt-6">
+                <li class="py-3 px-4 hover:bg-gray-700 rounded-md">
+                    <a href="/users/profile" class="flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+                        </svg>
+                        Profile
+                    </a>
+                </li>
+                <li class="py-3 px-4 hover:bg-gray-700 rounded-md"><a href="/pos">POS</a></li>
+                <li class="py-3 px-4 hover:bg-gray-700 rounded-md"><a href="/inventory">Inventory</a></li>
+                <li class="py-3 px-4 hover:bg-gray-700 rounded-md"><a href="/sales">Sales</a></li>
+                <li class="py-3 px-4 hover:bg-gray-700 rounded-md"><a href="/reports">Reports</a></li>
+                <li class="py-3 px-4 hover:bg-gray-700 rounded-md">
+                    <a href="/users/logout" class="flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <header class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-semibold text-gray-800">Point of Sale</h1>
+                <input 
+                    type="text" 
+                    placeholder="Search items..." 
+                    class="w-64 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300"
+                />
+            </header>
+
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Products List -->
+                <div class="col-span-8 bg-white rounded-lg shadow p-4">
+                    <h2 class="text-lg font-medium mb-4">Products</h2>
+                    <div class="grid grid-cols-3 gap-4">
+
+                        <% inventory.forEach((product) => { %>      
+                                <div class="border rounded-lg p-4 text-center hover:shadow-lg cursor-pointer" onclick= "window.location.href ='/pos/add-to-cart/<%= product.productId %>'">
+                                    <h3 class="font-semibold text-gray-700"><%= product.name %></h3>
+                                    <p class="text-sm text-gray-500">Price: <%= product.price %> Rs.</p>
+                                    <p class="text-sm text-gray-500">Stock: <%= product.stock %></p>
+                                </div>
+
+                        <% }) %>    
+                    </div>
+                </div>
+
+                <!-- Cart Section -->
+            
+                <div class="col-span-4 bg-white rounded-lg shadow p-4">
+                    <h2 class="text-lg font-medium mb-4">Cart</h2>
+
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="border-b py-2">Item</th>
+                                <th class="border-b py-2">Qty</th>
+                                <th class="border-b py-2">Price</th>
+                                <th class="border-b py-2">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-items">
+                            <% cart.forEach((item) => { %>
+                                <tr>
+                                    <td class="border-b py-2"><%= item.name %></td>
+                                    <td class="border-b py-2"><%= item.quantity %></td>
+                                    <td class="border-b py-2">Rs.<%= item.price * item.quantity %>.00</td>
+                                    <td class="border-b py-2">
+                                        <a href="/pos/remove-from-cart/<%= item.productId %>" class="text-red-500 hover:underline">Remove</a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+
+                    <div class="mt-4">
+                        <p class="text-right font-semibold text-gray-700">Rs.<%=  cartTotal %>.00</p>
+                        <button 
+                            class="mt-4 w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-lg font-medium"
+                            cartData='<%= JSON.stringify(cart) %>'
+                            cartTotalData='<%= JSON.stringify(cartTotal) %>'
+                            onclick="openCheckoutModal(this)">
+                            Checkout</button>
+                    </div>
+                </div>    
+                <!-- Checkout Modal -->
+                <div id="checkoutModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center">
+                    <div class="bg-white p-6 rounded-lg shadow-md w-96">
+                        <h2 class="text-2xl font-bold mb-4">Checkout</h2>
+                        <p class="mb-4">Order Details:</p>
+                        <ul id="order-details"></ul>
+                        <p class="font-semibold">Total: Rs.<span id="total-amount"></span>.00</p>
+                        <div class="flex justify-end mt-4">
+                            <button type="button" onclick="closeCheckoutModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md mr-2">Cancel</button>
+                            <button type="button" onclick= "window.location.href ='/pos/place-order'" class="bg-blue-600 text-white px-4 py-2 rounded-md">Place Order</button>
+        
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </main>
+    </div>
+</body>
+</html>
